@@ -4,11 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-
-import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -69,58 +65,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cliqo — O cliente decide dentro do email" },
-      {
-        name: "description",
-        content:
-          "A única plataforma brasileira com AMP for Email. Emails interativos que funcionam dentro do Gmail — sem redirect, sem perder o cliente no caminho.",
-      },
-      { name: "author", content: "Cliqo" },
-      { property: "og:title", content: "Cliqo — O cliente decide dentro do email" },
-      {
-        property: "og:description",
-        content:
-          "Emails interativos que funcionam dentro do Gmail. A única plataforma brasileira com AMP for Email.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Cliqo — O cliente decide dentro do email" },
-      { name: "description", content: "Cliqo: Email Revolution empowers businesses with interactive, in-email experiences using AMP for Email." },
-      { property: "og:description", content: "Cliqo: Email Revolution empowers businesses with interactive, in-email experiences using AMP for Email." },
-      { name: "twitter:description", content: "Cliqo: Email Revolution empowers businesses with interactive, in-email experiences using AMP for Email." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3b621120-1514-4beb-9545-69c08bb4256a/id-preview-1c422d42--dfd592e2-6a9d-4247-8643-430d6bbd5a19.lovable.app-1779202799314.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3b621120-1514-4beb-9545-69c08bb4256a/id-preview-1c422d42--dfd592e2-6a9d-4247-8643-430d6bbd5a19.lovable.app-1779202799314.png" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
