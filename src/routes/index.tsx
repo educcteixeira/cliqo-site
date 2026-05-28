@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, type FormEvent } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   Zap,
@@ -92,287 +92,28 @@ function Hero() {
           </motion.div>
         </div>
 
-        {/* Gmail mockup */}
+        {/* Animation mockup */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative"
         >
-          <LiveGmailMockup />
+          <div className="overflow-hidden rounded-3xl w-full bg-[#0a0a0a]" style={{ aspectRatio: "8/5" }}>
+            <iframe
+              src="/animacao/index.html"
+              className="w-full h-full border-0 outline-none"
+              title="Cliqo — Email AMP interativo"
+              tabIndex={-1}
+              allowTransparency={true}
+            />
+          </div>
           <div className="absolute -bottom-4 left-1/2 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-emerald-500/95 px-4 py-2 text-xs font-semibold text-white shadow-xl">
             <Check className="h-3.5 w-3.5" /> Funcionando dentro do Gmail
           </div>
         </motion.div>
       </div>
     </section>
-  );
-}
-
-/* Autoplay Gmail mockup — cicla entre cenas com cursor falso */
-type Scene = "carrossel" | "quiz";
-
-function LiveGmailMockup() {
-  const [scene, setScene] = useState<Scene>("carrossel");
-
-  useEffect(() => {
-    const order: Scene[] = ["carrossel", "quiz"];
-    const durations: Record<Scene, number> = { carrossel: 6500, quiz: 6500 };
-    let i = 0;
-    const tick = () => {
-      i = (i + 1) % order.length;
-      setScene(order[i]);
-    };
-    const id = setInterval(tick, durations[scene]);
-    return () => clearInterval(id);
-  }, [scene]);
-
-  const subjects: Record<Scene, string> = {
-    carrossel: "Novidades selecionadas para você",
-    quiz: "Encontre seu produto ideal em 3 passos",
-  };
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white shadow-2xl">
-      {/* Browser chrome */}
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-100 px-4 py-3">
-        <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-        <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-        <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
-        <div className="ml-4 flex-1 rounded-md bg-white px-3 py-1 text-[11px] text-slate-500">
-          mail.google.com/u/0/#inbox
-        </div>
-      </div>
-
-      {/* Email header */}
-      <div className="flex items-center gap-3 border-b border-slate-100 bg-white px-5 py-3 text-slate-900">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">C</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-semibold text-slate-900">cliqo.io</span>
-            <span className="rounded-md bg-yellow-300 px-1.5 py-0.5 text-[10px] font-bold text-slate-900">⚡ AMP</span>
-          </div>
-          <div className="truncate text-[11px] text-slate-500">{subjects[scene]} · agora</div>
-        </div>
-      </div>
-
-      {/* Scene body — fixed height for clean transitions */}
-      <div className="relative bg-white">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={scene}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4 }}
-            className="px-5 py-5 text-slate-900"
-          >
-            {scene === "carrossel" && <SceneCarrossel />}
-            {scene === "quiz" && <SceneQuiz />}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Scene dots */}
-      <div className="flex items-center justify-center gap-1.5 border-t border-slate-100 bg-white py-2.5">
-        {(["carrossel", "quiz"] as Scene[]).map((s) => (
-          <span
-            key={s}
-            className={`h-1.5 rounded-full transition-all ${s === scene ? "w-6 bg-primary" : "w-1.5 bg-slate-300"}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* Fake cursor — moves to (x,y) then "clicks" */
-function FakeCursor({ x, y, click }: { x: number | string; y: number | string; click?: number }) {
-  return (
-    <motion.div
-      className="pointer-events-none absolute z-30"
-      initial={false}
-      animate={{ left: x, top: y }}
-      transition={{ type: "spring", stiffness: 80, damping: 18, mass: 0.6 }}
-      style={{ translateX: "-20%", translateY: "-10%" }}
-    >
-      <svg width="22" height="24" viewBox="0 0 22 24" fill="none">
-        <path d="M2 2L20 12L11 14L7 22L2 2Z" fill="#0f172a" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-      </svg>
-      {click ? (
-        <motion.span
-          key={click}
-          initial={{ scale: 0, opacity: 0.7 }}
-          animate={{ scale: 2.4, opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute left-1 top-2 h-3 w-3 rounded-full bg-primary"
-        />
-      ) : null}
-    </motion.div>
-  );
-}
-
-/* Cena 1: Carrossel — cursor clica próximo, depois "Tenho interesse" */
-function SceneCarrossel() {
-  const products = [
-    { name: "Soldador MIG 250A", price: "R$ 4.890", color: "bg-slate-800" },
-    { name: "Compressor 20L", price: "R$ 1.290", color: "bg-slate-300" },
-    { name: "Esmerilhadeira 7\"", price: "R$ 489", color: "bg-amber-200" },
-  ];
-  const [idx, setIdx] = useState(0);
-  const [interested, setInterested] = useState(false);
-  const [cursor, setCursor] = useState({ x: "60%", y: "85%" });
-  const [click, setClick] = useState(0);
-
-  useEffect(() => {
-    setIdx(0);
-    setInterested(false);
-    const seq: Array<[() => void, number]> = [
-      [() => setCursor({ x: "92%", y: "55%" }), 800],   // mover para "próximo"
-      [() => { setClick((c) => c + 1); setIdx(1); }, 600], // click → produto 2
-      [() => setCursor({ x: "92%", y: "55%" }), 700],
-      [() => { setClick((c) => c + 1); setIdx(2); }, 600], // click → produto 3
-      [() => setCursor({ x: "78%", y: "94%" }), 800],   // mover para botão
-      [() => { setClick((c) => c + 1); setInterested(true); }, 600], // click "Tenho interesse"
-    ];
-    let total = 0;
-    const timers = seq.map(([fn, delay]) => {
-      total += delay;
-      return setTimeout(fn, total);
-    });
-    return () => timers.forEach(clearTimeout);
-  }, []);
-
-  const p = products[idx];
-  return (
-    <div className="relative min-h-[260px]">
-      <FakeCursor x={cursor.x} y={cursor.y} click={click} />
-      <div className="overflow-hidden rounded-xl border border-slate-200">
-        <motion.div
-          key={p.name}
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className={`h-32 ${p.color}`}
-        />
-        <div className="flex items-center justify-between px-3 py-3">
-          <div>
-            <div className="text-xs font-semibold">{p.name}</div>
-            <div className="mt-0.5 text-sm font-bold text-primary">{p.price}</div>
-          </div>
-          <div className="flex gap-1.5">
-            {products.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 rounded-full transition-all ${i === idx ? "w-5 bg-primary" : "w-1.5 bg-slate-300"}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center justify-between gap-2">
-        <button className="rounded-full border border-slate-200 px-3 py-1.5 text-[11px] font-medium text-slate-500">
-          ← Anterior
-        </button>
-        <button className="rounded-full border border-slate-200 px-3 py-1.5 text-[11px] font-medium text-slate-700">
-          Próximo →
-        </button>
-        <motion.button
-          animate={interested ? { backgroundColor: "#10b981" } : { backgroundColor: "#f43f5e" }}
-          transition={{ duration: 0.3 }}
-          className="rounded-lg px-3 py-2 text-[11px] font-semibold text-white shadow-md"
-        >
-          {interested ? "✓ Interesse registrado" : "Tenho interesse"}
-        </motion.button>
-      </div>
-    </div>
-  );
-}
-
-/* Cena 2: Quiz — cursor responde 2 perguntas → recomendação */
-function SceneQuiz() {
-  const questions = [
-    { q: "Você compra com que frequência?", opts: ["Toda semana", "Todo mês", "Esporadicamente"] },
-    { q: "O que mais importa?", opts: ["Preço", "Qualidade", "Exclusividade"] },
-  ];
-  const [step, setStep] = useState(0);
-  const [cursor, setCursor] = useState({ x: "30%", y: "85%" });
-  const [click, setClick] = useState(0);
-
-  useEffect(() => {
-    setStep(0);
-    const seq: Array<[() => void, number]> = [
-      [() => setCursor({ x: "50%", y: "60%" }), 1000],
-      [() => { setClick((c) => c + 1); setStep(1); }, 600],
-      [() => setCursor({ x: "50%", y: "75%" }), 1000],
-      [() => { setClick((c) => c + 1); setStep(2); }, 600],
-    ];
-    let total = 0;
-    const timers = seq.map(([fn, d]) => {
-      total += d;
-      return setTimeout(fn, total);
-    });
-    return () => timers.forEach(clearTimeout);
-  }, []);
-
-  return (
-    <div className="relative min-h-[260px]">
-      <FakeCursor x={cursor.x} y={cursor.y} click={click} />
-      <AnimatePresence mode="wait">
-        {step < 2 ? (
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -16 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="mb-3 flex items-center justify-between text-[11px] text-slate-500">
-              <span>Pergunta {step + 1} de {questions.length}</span>
-              <div className="flex gap-1">
-                {questions.map((_, i) => (
-                  <span key={i} className={`h-1 w-5 rounded-full ${i <= step ? "bg-primary" : "bg-slate-200"}`} />
-                ))}
-              </div>
-            </div>
-            <p className="text-sm font-semibold">{questions[step].q}</p>
-            <div className="mt-3 grid gap-2">
-              {questions[step].opts.map((o, i) => (
-                <div
-                  key={o}
-                  className={`rounded-lg border px-3 py-2.5 text-xs ${
-                    i === 1
-                      ? "border-primary bg-primary/5 text-primary font-semibold"
-                      : "border-slate-200 text-slate-700"
-                  }`}
-                >
-                  {o}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="result"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35 }}
-            className="text-center"
-          >
-            <div className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg">🎯</div>
-            <h4 className="mt-2 text-sm font-bold">Recomendação personalizada</h4>
-            <div className="mx-auto mt-3 flex max-w-[260px] items-center gap-3 rounded-xl border border-slate-200 p-3 text-left">
-              <div className="h-14 w-14 shrink-0 rounded-lg bg-gradient-to-br from-rose-200 to-amber-200" />
-              <div>
-                <div className="text-xs font-semibold">Coleção Premium 2026</div>
-                <div className="text-[10px] text-slate-500">Match: 94%</div>
-                <div className="mt-0.5 text-xs font-bold text-primary">R$ 349</div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 }
 
